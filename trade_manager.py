@@ -1,4 +1,5 @@
 ﻿import requests
+import logging
 from settings import StrategyParameters
 
 class TradeManager:
@@ -98,12 +99,19 @@ class TradeManager:
         else:
             self.log(f"Error setting leverage for {symbol}: {response.text}")
 
-    def log(self, message, level="INFO"):
-        if level == "INFO":
-            logging.info(message)
-        elif level == "WARNING":
-            logging.warning(message)
-        elif level == "ERROR":
-            logging.error(message)
-        else:
+    def log(message, level="info"):
+        # Configurarea logger-ului
+        logging.basicConfig(filename='trade_manager.log', level=logging.DEBUG,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+        
+        # Înregistrarea mesajului în funcție de nivelul de severitate
+        if level == "debug":
             logging.debug(message)
+        elif level == "info":
+            logging.info(message)
+        elif level == "warning":
+            logging.warning(message)
+        elif level == "error":
+            logging.error(message)
+        elif level == "critical":
+            logging.critical(message)
