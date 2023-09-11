@@ -35,3 +35,4 @@
     def close_position(self, symbol):
         # Închidere poziție
         self.algo.Liquidate(symbol)
+        
