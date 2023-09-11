@@ -3,6 +3,7 @@ from settings import StrategyParameters
 
 class TradeManager:
     BASE_URL = "https://api.binance.com/api/v3"
+    FUTURES_URL = "https://fapi.binance.com/fapi/v1"  # Binance Futures API endpoint
     HEADERS = {
         "X-MBX-APIKEY": StrategyParameters().api_key
     }
@@ -60,22 +61,49 @@ class TradeManager:
             self.log(f"Error placing sell order for {symbol}: {response.text}")
 
     def place_short_order(self, symbol, quantity):
-        available_balance = self._check_balance(symbol)
-        if available_balance < quantity:
-            self.log(f"Insufficient balance. Available: {available_balance}, Required: {quantity}")
-            return
-
-        # Logic for placing short order. This might require using Binance's futures API.
+        # For short orders, we'll use Binance's Futures API
+        endpoint = f"{self.FUTURES_URL}/order"
+        data = {
+            "symbol": symbol,
+            "side": "SELL",
+            "type": "LIMIT",
+            "quantity": quantity,
+            # Add other required parameters like price, timestamp, etc.
+        }
+        response = requests.post(endpoint, headers=self.HEADERS, data=data)
+        if response.status_code == 200:
+            self.log(f"Short order placed for {quantity} {symbol}")
+        else:
+            self.log(f"Error placing short order for {symbol}: {response.text}")
 
     def close_position(self, symbol):
-        # Logic to close an open position for the given symbol.
+        # To close a position, we'll sell the entire quantity of the asset
+        available_balance = self._check_balance(symbol)
+        if available_balance <= 0:
+            self.log(f"No {symbol} position to close.")
+            return
+
+        self.place_sell_order(symbol)
 
     def set_leverage(self, symbol, leverage):
-        # Logic to set leverage for the given symbol. This might require using Binance's futures API.
+        # Setting leverage using Binance's Futures API
+        endpoint = f"{self.FUTURES_URL}/leverage"
+        data = {
+            "symbol": symbol,
+            "leverage": leverage
+        }
+        response = requests.post(endpoint, headers=self.HEADERS, data=data)
+        if response.status_code == 200:
+            self.log(f"Leverage set to {leverage} for {symbol}")
+        else:
+            self.log(f"Error setting leverage for {symbol}: {response.text}")
 
-    def log(self, message):
-        print(message)
-
-    def notify(self, message):
-        # Logic to send notifications, e.g., email or messages to a messaging app.
-        pass
+    def log(self, message, level="INFO"):
+        if level == "INFO":
+            logging.info(message)
+        elif level == "WARNING":
+            logging.warning(message)
+        elif level == "ERROR":
+            logging.error(message)
+        else:
+            logging.debug(message)
