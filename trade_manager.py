@@ -32,9 +32,8 @@ class TradeManager:
         data = {
             "symbol": symbol,
             "side": "BUY",
-            "type": "LIMIT",
+            "type": "MARKET",
             "quantity": quantity,
-            # Add other required parameters like price, timestamp, etc.
         }
         response = requests.post(endpoint, headers=self.HEADERS, data=data)
         if response.status_code == 200:
@@ -52,7 +51,7 @@ class TradeManager:
         data = {
             "symbol": symbol,
             "side": "SELL",
-            "type": "LIMIT",
+            "type": "MARKET",
             "quantity": available_balance,
         }
         response = requests.post(endpoint, headers=self.HEADERS, data=data)
@@ -67,9 +66,8 @@ class TradeManager:
         data = {
             "symbol": symbol,
             "side": "SELL",
-            "type": "LIMIT",
+            "type": "MARKET",
             "quantity": quantity,
-            # Add other required parameters like price, timestamp, etc.
         }
         response = requests.post(endpoint, headers=self.HEADERS, data=data)
         if response.status_code == 200:
@@ -99,7 +97,7 @@ class TradeManager:
         else:
             self.log(f"Error setting leverage for {symbol}: {response.text}")
 
-    def log(message, level="info"):
+    def log(self, message, level="info"):
         # Configurarea logger-ului
         logging.basicConfig(filename='trade_manager.log', level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - %(message)s')
